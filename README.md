@@ -642,5 +642,5 @@ The next run will recreate it with predefined data.
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](https://github.com/artyomturkoff/habit_tracker/edit/main/README.md#:~:text=t-,LICENSE,-README.md) file for details.
+This project is licensed under the MIT License - see the [LICENSE](https://github.com/artyomturkoff/habit_tracker/blob/main/LICENSE) file for details.
 
