@@ -55,24 +55,18 @@ class Habit:
     
     def check_off(self, completion_time: datetime = None) -> bool:
         """
-        Record a completion of the habit for the current period.
+        Record the habit completion for the current period (day or a calendar week).
         
-        Updates the habit's state including streaks, last completion date,
-        and next due date. If the habit is overdue, the streak is reset.
-        
-        Args:
-            completion_time: Optional datetime for the completion (defaults to now)
-        
-        Returns:
-            True if check-off was successful, False if already completed this period
+        Updates the habit's state, including streaks, last completion date,
+        and next due date. If the habit is overdue, the streak resets.
         """
         now = completion_time if completion_time else datetime.now()
         
-        # Check if already completed in current period
+        # Check if already completed in the current period
         if self.last_completion_date and self._is_same_period(now, self.last_completion_date):
             return False  # Already completed in this period
         
-        # Check if habit was overdue (missed a period)
+        # Check if the habit was overdue (missed a period)
         if self.is_overdue(now):
             self.current_streak = 1  # Reset streak to 1
         else:
@@ -89,11 +83,11 @@ class Habit:
     
     def is_overdue(self, check_time: datetime = None) -> bool:
         """
-        Check if the habit is currently overdue for completion.
+        Check if the habit is currently overdue. 
         
-        Args:
-            check_time: Optional datetime to check against (defaults to now)
+        Optional check_time to check against (defaults to now).
         """
+        # For newly created habits, the due_date is None, and they cannot be overdue
         if self.due_date is None:
             return False
         check = check_time if check_time else datetime.now()
@@ -103,9 +97,13 @@ class Habit:
         """
         Calculate the next due date based on periodicity.
         
-        For daily habits: due date is the end of the day following completion
-        For weekly habits: due date is end of Sunday of the next week after completion
+        For daily habits: the due date is the end of the day following completion.
+        For weekly habits: the due date is the end of Sunday of the following week after completion.
+
+        datetime.max.time() returns the end of the day time (23:59.9999).
+        date.fromisocalendar(year, week, 7), used to shift the due date of weekly habits to the last day of the following week (Sunday). 
         """
+        # For a newly created habit which was never completed, the due date cannot be calculated
         if self.last_completion_date is None:
             return None
             
@@ -126,14 +124,10 @@ class Habit:
     
     def _is_same_period(self, date1: datetime, date2: datetime) -> bool:
         """
-        Check if two dates fall within the same period for this habit's periodicity.
+        Check if two dates fall within the same period for the habit's periodicity.
         
-        For daily habits: Same calendar day
-        For weekly habits: Same calendar week (Monday to Sunday)
-        
-        Args:
-            date1: First date to compare
-            date2: Second date to compare
+        For daily habits: on the same calendar day.
+        For weekly habits: on the same calendar week (Monday to Sunday).
         """
         if self.periodicity == self.DAILY:
             return date1.date() == date2.date()
@@ -143,7 +137,9 @@ class Habit:
             return year1 == year2 and week1 == week2
     
     def is_completed_today(self) -> bool:
-        """Check if habit has been completed in the current period."""
+        """
+        Check if the habit has been completed in the current period.
+        """
         if self.last_completion_date is None:
             return False
         return self._is_same_period(datetime.now(), self.last_completion_date)
@@ -152,8 +148,8 @@ class Habit:
         """
         Convert the habit to a dictionary representation.
         
-        Useful for database storage or JSON export.
-        Datetimes are converted to ISO 8601 format strings.
+        Useful for storing in a database or exporting as JSON.
+        Datetimes are converted to ISO 8601 format strings (SQLite compatible).
         """
         return {
             'name': self.name,
@@ -176,12 +172,6 @@ class Habit:
     def from_dict(cls, data: dict) -> 'Habit':
         """
         Create a Habit instance from a dictionary.
-        
-        Args:
-            data: Dictionary containing habit data
-            
-        Returns:
-            New Habit instance
         """
         return cls(
             name=data['name'],
