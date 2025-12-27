@@ -497,7 +497,7 @@ habit_tracker/
 
 ## Running Tests
 
-The project includes a 32 unit tests covering:
+The project includes 34 unit tests covering:
 
 - Habit model creation and validation
 - Streak calculations
@@ -519,7 +519,7 @@ python -m pytest tests/ -v
 
 ```
 ============================= test session starts ==============================
-collected 32 items
+collected 34 items
 
 tests/test_habit_tracker.py::TestHabitModel::test_create_valid_daily_habit PASSED
 tests/test_habit_tracker.py::TestHabitModel::test_create_valid_weekly_habit PASSED
@@ -528,7 +528,7 @@ tests/test_habit_tracker.py::TestHabitModel::test_invalid_empty_name PASSED
 tests/test_habit_tracker.py::TestIntegration::test_full_habit_lifecycle PASSED
 tests/test_habit_tracker.py::TestIntegration::test_streak_reset_on_missed_period PASSED
 
-============================== 32 passed in 0.10s ==============================
+============================== 34 passed in 0.04s ==============================
 ```
 
 ---
