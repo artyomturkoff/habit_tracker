@@ -2,7 +2,7 @@
 Predefined habits with 4 weeks of example tracking data.
 
 This module provides test fixtures with realistic habit data for testing
-and demonstration purposes as required by the project specification.
+and demonstration purposes.
 """
 from datetime import datetime, timedelta
 from typing import List
@@ -12,7 +12,7 @@ from model.habit import Habit
 
 def get_predefined_habits() -> List[Habit]:
     """
-    Create and return 5 predefined habits with initial state.
+    Create and return 5 predefined habits with initial states.
     
     Returns:
         List of 5 Habit objects (3 daily, 2 weekly)
@@ -46,7 +46,7 @@ def get_predefined_habits() -> List[Habit]:
         ),
         Habit(
             name="Clean Room",
-            description="Deep clean and organize living space",
+            description="Deep clean and organise living space",
             periodicity="weekly",
             created_date=base_date
         )
@@ -66,18 +66,16 @@ def get_sample_completion_dates() -> dict:
     
     completions = {}
     
-    # Morning Exercise - Good consistency, 22 out of 28 days (missed 6 days)
-    # Simulates someone who exercises most days but sometimes skips
+    # Morning Exercise - Simulates good consistency, 22 out of 28 days (missed 6 days), exercises most days but sometimes skips
     exercise_dates = []
     for i in range(28, 0, -1):
         day = today - timedelta(days=i)
-        # Skip some days to simulate realistic behavior
+        # Skip some days to simulate realistic behaviour
         if i not in [3, 8, 12, 15, 21, 25]:  # Missed days
             exercise_dates.append(day)
     completions["Morning Exercise"] = exercise_dates
     
-    # Read Book - Very consistent, 26 out of 28 days
-    # Simulates a dedicated reader who rarely misses
+    # Read Book - Simulates very good consistency, 26 out of 28 days, rarely misses
     reading_dates = []
     for i in range(28, 0, -1):
         day = today - timedelta(days=i)
@@ -85,8 +83,7 @@ def get_sample_completion_dates() -> dict:
             reading_dates.append(day)
     completions["Read Book"] = reading_dates
     
-    # Drink Water - Perfect streak for last 14 days, some misses before
-    # Simulates someone who improved their habit halfway through
+    # Drink Water - Simulates a perfect streak for the last 14 days, some misses before
     water_dates = []
     for i in range(28, 0, -1):
         day = today - timedelta(days=i)
@@ -95,19 +92,18 @@ def get_sample_completion_dates() -> dict:
     completions["Drink Water"] = water_dates
     
     # Weekly Review - Done 3 out of 4 weeks
-    # Week numbers calculated from start date
     weekly_review_dates = []
     for week in range(4):
         if week != 2:  # Missed week 3
-            # Complete on Sunday of each week
+            # Complete on the Saturday of each week
             completion_day = today - timedelta(days=28) + timedelta(days=week*7 + 6)
             weekly_review_dates.append(completion_day)
     completions["Weekly Review"] = weekly_review_dates
     
-    # Clean Room - Done all 4 weeks (perfect weekly habit)
+    # Clean Room - Simulate perfect weekly habit, done all 4 weeks
     clean_room_dates = []
     for week in range(4):
-        # Complete on Saturday of each week
+        # Complete on Friday of each week
         completion_day = today - timedelta(days=28) + timedelta(days=week*7 + 5)
         clean_room_dates.append(completion_day)
     completions["Clean Room"] = clean_room_dates
@@ -118,15 +114,6 @@ def get_sample_completion_dates() -> dict:
 def load_predefined_data(connection) -> List[Habit]:
     """
     Load predefined habits with their completion history into the database.
-    
-    This applies the 4 weeks of sample data to create realistic habit states
-    with proper streak calculations.
-    
-    Args:
-        connection: Active SQLite database connection
-        
-    Returns:
-        List of Habit objects with applied completion data
     """
     from database.sqlitedb import save_habit, save_completion
     
