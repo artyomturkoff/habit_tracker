@@ -377,6 +377,31 @@ class TestAnalytics:
         result = get_all_habits(sample_habits_list)
         
         assert len(result) == len(sample_habits_list)
+
+    def test_get_not_completed_habits_filters_completed(self):
+        """
+        Test that completed habits are excluded from the get_not_completed_habits() results.
+        """
+        completed_habit = Habit(
+            name="Done Today",
+            description="Already completed",
+            periodicity="daily",
+            created_date=datetime.now()
+        )
+        completed_habit.check_off()  # Mark as done
+        
+        pending_habit = Habit(
+            name="Still Pending",
+            description="Not done yet",
+            periodicity="daily",
+            created_date=datetime.now()
+        )
+        
+        habits = [completed_habit, pending_habit]
+        not_completed = get_not_completed_habits(habits)
+        
+        assert len(not_completed) == 1
+        assert not_completed[0].name == "Still Pending"    
     
     def test_get_habits_by_periodicity_daily(self, sample_habits_list):
         """
