@@ -5,7 +5,6 @@ This module implements analytics functionality using the functional programming
 paradigm, as required by the project specifications.
 """
 from typing import List, Tuple, Optional
-from functools import reduce
 
 from model.habit import Habit
 
