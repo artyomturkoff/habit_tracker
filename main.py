@@ -1,11 +1,10 @@
-#!/usr/bin/env python3
 """
 Habit Tracking Application - Command Line Interface
 
 This is the main entry point for the habit tracker application.
 It provides an interactive menu-based interface following the user flow:
 
-START → Main Menu → (Options 1-5) → END
+START → Main Menu → Submenus → END
 
 Main Menu Options:
 1. Check Off Habit - Mark habits as completed
@@ -45,39 +44,53 @@ from data.predefined_habits import load_predefined_data
 # ============================================================================
 
 def clear_screen():
-    """Clear the terminal screen."""
+    """
+    Clear the terminal screen.
+    """
     print("\n" * 2)
 
 
 def print_header(title: str):
-    """Print a formatted header."""
+    """
+    Print a formatted header.
+    """
     print("\n" + "=" * 50)
     print(f"  {title}")
     print("=" * 50)
 
 
 def print_separator():
-    """Print a visual separator line."""
+    """
+    Print a visual separator line.
+    """
     print("-" * 50)
 
 
 def print_success(message: str):
-    """Print a success message."""
+    """
+    Print a success message.
+    """
     print(f"✓ {message}")
 
 
 def print_error(message: str):
-    """Print an error message."""
+    """
+    Print an error message.
+    """
     print(f"✗ {message}")
 
 
 def print_info(message: str):
-    """Print an info message."""
+    """
+    Print an info message.
+    """
     print(f"ℹ {message}")
 
 
 def pause():
-    """Wait for user to press Enter."""
+    """
+    Wait for the user to press Enter.
+    """
     input("\nPress Enter to continue...")
 
 
@@ -86,7 +99,9 @@ def pause():
 # ============================================================================
 
 def display_main_menu():
-    """Display the main menu options."""
+    """
+    Display the main menu options.
+    """
     print_header("HABIT TRACKER - Main Menu")
     print("\n  1. Check Off Habit")
     print("  2. View All Habits")
@@ -100,8 +115,7 @@ def main_menu(connection) -> bool:
     """
     Handle main menu interaction.
     
-    Returns:
-        False if user chooses to exit, True otherwise
+    False if the user chooses to exit, True otherwise
     """
     display_main_menu()
     
@@ -433,7 +447,9 @@ def analytics_menu(connection):
 
 
 def show_all_tracked_habits(habits: List[Habit]):
-    """Display all currently tracked habits."""
+    """
+    Display all currently tracked habits.
+    """
     print_header("All Tracked Habits")
     
     all_habits = get_all_habits(habits)
@@ -453,7 +469,9 @@ def show_all_tracked_habits(habits: List[Habit]):
 
 
 def show_habits_by_periodicity(habits: List[Habit]):
-    """Display habits filtered by periodicity."""
+    """
+    Display habits filtered by periodicity.
+    """
     print_header("Habits by Periodicity")
     
     print("\n  1. Daily habits")
@@ -487,7 +505,9 @@ def show_habits_by_periodicity(habits: List[Habit]):
 
 
 def show_max_streak_each_habit(habits: List[Habit]):
-    """Display the maximum streak achieved for each habit."""
+    """
+    Display the maximum streak achieved for each habit.
+    """
     print_header("Max Streak for Each Habit")
     
     if not habits:
@@ -510,7 +530,9 @@ def show_max_streak_each_habit(habits: List[Habit]):
 
 
 def show_longest_streak_overall(habits: List[Habit]):
-    """Display the habit with the longest streak overall."""
+    """
+    Display the habit with the longest streak overall.
+    """
     print_header("Longest Streak Overall")
     
     if not habits:
@@ -541,10 +563,7 @@ def show_longest_streak_overall(habits: List[Habit]):
 
 def initialize_app():
     """
-    Initialize the application and database.
-    
-    Returns:
-        Database connection if successful, None otherwise
+    Initialise the application and database.
     """
     print_header("Habit Tracker")
     print("\nInitializing...")
@@ -574,7 +593,9 @@ def initialize_app():
 
 
 def run():
-    """Main application entry point."""
+    """
+    Main application entry point.
+    """
     # Initialize
     connection = initialize_app()
     
