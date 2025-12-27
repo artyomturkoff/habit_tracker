@@ -9,6 +9,8 @@ import sqlite3
 from datetime import datetime, timedelta
 import os
 import sys
+import tempfile
+
 
 # Add parent directory to path for imports
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -198,7 +200,7 @@ class TestHabitModel:
                 created_date=datetime.now()
             )
     
-    def test_check_off_increments_streak(self, sample_daily_habit):
+    def test_check_off_increments_streak(self, sample_daily_habit: Habit):
         """
         Test that check_off increments the streak.
         """
@@ -209,7 +211,7 @@ class TestHabitModel:
         assert result is True
         assert sample_daily_habit.current_streak == initial_streak + 1
     
-    def test_check_off_updates_longest_streak(self, sample_daily_habit):
+    def test_check_off_updates_longest_streak(self, sample_daily_habit: Habit):
         """
         Test that check_off updates longest streak when appropriate.
         """
@@ -217,7 +219,7 @@ class TestHabitModel:
         
         assert sample_daily_habit.longest_streak >= sample_daily_habit.current_streak
     
-    def test_check_off_same_day_returns_false(self, sample_daily_habit):
+    def test_check_off_same_day_returns_false(self, sample_daily_habit: Habit):
         """
         Test that checking off twice in same period returns False.
         """
@@ -227,7 +229,7 @@ class TestHabitModel:
         
         assert result is False
     
-    def test_check_off_sets_due_date(self, sample_daily_habit):
+    def test_check_off_sets_due_date(self, sample_daily_habit: Habit):
         """
         Test that check_off sets the due date.
         """
@@ -237,13 +239,13 @@ class TestHabitModel:
         
         assert sample_daily_habit.due_date is not None
     
-    def test_is_overdue_returns_false_when_no_due_date(self, sample_daily_habit):
+    def test_is_overdue_returns_false_when_no_due_date(self, sample_daily_habit: Habit):
         """
         Test is_overdue returns False when no due date is set.
         """
         assert sample_daily_habit.is_overdue() is False
     
-    def test_to_dict_conversion(self, sample_daily_habit):
+    def test_to_dict_conversion(self, sample_daily_habit: Habit):
         """
         Test conversion to dictionary.
         """
@@ -254,7 +256,7 @@ class TestHabitModel:
         assert habit_dict['periodicity'] == sample_daily_habit.periodicity
         assert 'created_date' in habit_dict
     
-    def test_from_dict_conversion(self, sample_daily_habit):
+    def test_from_dict_conversion(self, sample_daily_habit: Habit):
         """
         Test creation from a dictionary.
         """
@@ -275,8 +277,32 @@ class TestDatabase:
     """
     Tests for database operations.
     """
+
+    def test_get_database_connection_creates_file(self):
+        """
+        Test get_database_connection():
+        - Function returns a valid SQLite connection
+        - Database file is created at specified path
+        - Directory is created if it doesn't exist
+        """
+        with tempfile.TemporaryDirectory() as tmpdir:
+            db_path = os.path.join(tmpdir, "subdir", "test.db")
+            
+            conn = get_database_connection(db_path)
+            
+            # Should return valid connection
+            assert conn is not None
+            
+            # File should exist
+            assert os.path.exists(db_path)
+            
+            # Should be able to execute queries
+            cursor = conn.execute("SELECT 1")
+            assert cursor.fetchone()[0] == 1
+            
+            conn.close()
     
-    def test_save_and_load_habit(self, test_db, sample_daily_habit):
+    def test_save_and_load_habit(self, test_db: sqlite3.Connection, sample_daily_habit: Habit):
         """
         Test saving and loading a habit.
         """
@@ -287,7 +313,7 @@ class TestDatabase:
         assert len(habits) == 1
         assert habits[0].name == sample_daily_habit.name
     
-    def test_load_habit_by_name(self, test_db, sample_daily_habit):
+    def test_load_habit_by_name(self, test_db: sqlite3.Connection, sample_daily_habit: Habit):
         """
         Test loading a specific habit by name.
         """
@@ -298,7 +324,7 @@ class TestDatabase:
         assert loaded is not None
         assert loaded.name == sample_daily_habit.name
     
-    def test_load_nonexistent_habit_returns_none(self, test_db):
+    def test_load_nonexistent_habit_returns_none(self, test_db: sqlite3.Connection):
         """
         Test loading a habit that doesn't exist.
         """
@@ -306,7 +332,7 @@ class TestDatabase:
         
         assert loaded is None
     
-    def test_habit_exists(self, test_db, sample_daily_habit):
+    def test_habit_exists(self, test_db: sqlite3.Connection, sample_daily_habit: Habit):
         """
         Test checking if a habit exists.
         """
@@ -316,7 +342,7 @@ class TestDatabase:
         
         assert habit_exists(test_db, sample_daily_habit.name) is True
     
-    def test_delete_habit(self, test_db, sample_daily_habit):
+    def test_delete_habit(self, test_db: sqlite3.Connection, sample_daily_habit: Habit):
         """
         Test deleting a habit.
         """
@@ -328,7 +354,7 @@ class TestDatabase:
         assert result is True
         assert habit_exists(test_db, sample_daily_habit.name) is False
     
-    def test_delete_nonexistent_habit_returns_false(self, test_db):
+    def test_delete_nonexistent_habit_returns_false(self, test_db: sqlite3.Connection):
         """
         Test deleting a habit that doesn't exist.
         """
@@ -336,7 +362,7 @@ class TestDatabase:
         
         assert result is False
     
-    def test_save_completion(self, test_db, sample_daily_habit):
+    def test_save_completion(self, test_db: sqlite3.Connection, sample_daily_habit: Habit):
         """
         Test saving a completion record.
         """
@@ -348,7 +374,7 @@ class TestDatabase:
         completions = get_completions_for_habit(test_db, sample_daily_habit.name)
         assert len(completions) == 1
     
-    def test_update_existing_habit(self, test_db, sample_daily_habit):
+    def test_update_existing_habit(self, test_db: sqlite3.Connection, sample_daily_habit: Habit):
         """
         Test updating an existing habit.
         """
@@ -370,7 +396,7 @@ class TestAnalytics:
     Tests for analytics module (functional programming).
     """
     
-    def test_get_all_habits(self, sample_habits_list):
+    def test_get_all_habits(self, sample_habits_list: list[Habit]):
         """
         Test getting all habits.
         """
@@ -403,7 +429,7 @@ class TestAnalytics:
         assert len(not_completed) == 1
         assert not_completed[0].name == "Still Pending"    
     
-    def test_get_habits_by_periodicity_daily(self, sample_habits_list):
+    def test_get_habits_by_periodicity_daily(self, sample_habits_list: list[Habit]):
         """
         Test filtering daily habits.
         """
@@ -412,7 +438,7 @@ class TestAnalytics:
         assert len(result) == 2
         assert all(h.periodicity == "daily" for h in result)
     
-    def test_get_habits_by_periodicity_weekly(self, sample_habits_list):
+    def test_get_habits_by_periodicity_weekly(self, sample_habits_list: list[Habit]):
         """
         Test filtering weekly habits.
         """
@@ -421,7 +447,7 @@ class TestAnalytics:
         assert len(result) == 2
         assert all(h.periodicity == "weekly" for h in result)
     
-    def test_get_longest_streak_all_habits(self, sample_habits_list):
+    def test_get_longest_streak_all_habits(self, sample_habits_list: list[Habit]):
         """
         Test finding the longest streak across all habits.
         """
@@ -439,7 +465,7 @@ class TestAnalytics:
         assert habit_name is None
         assert streak == 0
     
-    def test_get_longest_streak_for_habit(self, sample_habits_list):
+    def test_get_longest_streak_for_habit(self, sample_habits_list: list[Habit]):
         """
         Test getting longest streak for a specific habit.
         """
@@ -449,7 +475,7 @@ class TestAnalytics:
         
         assert result == habit.longest_streak
     
-    def test_get_current_streak_for_habit(self, sample_habits_list):
+    def test_get_current_streak_for_habit(self, sample_habits_list: list[Habit]):
         """
         Test getting the current streak for a specific habit.
         """
@@ -459,7 +485,7 @@ class TestAnalytics:
         
         assert result == habit.current_streak
     
-    def test_get_habits_sorted_by_current_streak(self, sample_habits_list):
+    def test_get_habits_sorted_by_current_streak(self, sample_habits_list: list[Habit]):
         """
         Test sorting habits by current streak.
         """
@@ -469,7 +495,7 @@ class TestAnalytics:
         for i in range(len(result) - 1):
             assert result[i].current_streak >= result[i + 1].current_streak
     
-    def test_get_habits_sorted_by_longest_streak(self, sample_habits_list):
+    def test_get_habits_sorted_by_longest_streak(self, sample_habits_list: list[Habit]):
         """
         Test sorting habits by longest streak.
         """
@@ -479,7 +505,7 @@ class TestAnalytics:
         for i in range(len(result) - 1):
             assert result[i].longest_streak >= result[i + 1].longest_streak
     
-    def test_get_max_streak_per_habit(self, sample_habits_list):
+    def test_get_max_streak_per_habit(self, sample_habits_list: list[Habit]):
         """
         Test getting max streak for each habit.
         """
@@ -499,7 +525,7 @@ class TestIntegration:
     Integration tests combining multiple components.
     """
     
-    def test_full_habit_lifecycle(self, test_db):
+    def test_full_habit_lifecycle(self, test_db: sqlite3.Connection):
         """
         Test complete habit lifecycle: create, check-off, save, load, delete.
         """
@@ -528,7 +554,7 @@ class TestIntegration:
         delete_habit(test_db, habit.name)
         assert not habit_exists(test_db, habit.name)
     
-    def test_streak_reset_on_missed_period(self, test_db):
+    def test_streak_reset_on_missed_period(self, test_db: sqlite3.Connection):
         """
         Test that streak resets when a period is missed.
         """
