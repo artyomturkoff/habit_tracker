@@ -15,12 +15,6 @@ def get_database_connection(db_path: str = "data/habits.db") -> sqlite3.Connecti
     Create and return a connection to the SQLite database.
     
     The database file will be created automatically if it doesn't exist.
-    
-    Args:
-        db_path: Path to the database file (default: 'data/habits.db')
-    
-    Returns:
-        sqlite3.Connection: Active database connection
     """
     # Create directory if it doesn't exist
     db_dir = os.path.dirname(db_path)
@@ -42,9 +36,7 @@ def initialize_database(connection: sqlite3.Connection) -> None:
     
     This should be called when the app starts to ensure
     the database schema is set up properly.
-    
-    Args:
-        connection: Active SQLite connection
+
     """
     # Create habits table (IF NOT EXISTS to prevent errors on restart)
     connection.execute("""
@@ -77,12 +69,6 @@ def initialize_database(connection: sqlite3.Connection) -> None:
 def is_database_initialized(connection: sqlite3.Connection) -> bool:
     """
     Check if the database tables exist.
-    
-    Args:
-        connection: Active SQLite connection
-        
-    Returns:
-        True if habits table exists, False otherwise
     """
     cursor = connection.execute("""
         SELECT name FROM sqlite_master 
@@ -97,10 +83,6 @@ def save_habit(connection: sqlite3.Connection, habit: Habit) -> None:
     
     If the habit already exists (same name), it will be updated.
     If it's new, it will be inserted.
-    
-    Args:
-        connection: Active SQLite connection
-        habit: Habit object to save
     """
     connection.execute("""
         INSERT OR REPLACE INTO habits 
@@ -124,12 +106,6 @@ def save_habit(connection: sqlite3.Connection, habit: Habit) -> None:
 def load_all_habits(connection: sqlite3.Connection) -> List[Habit]:
     """
     Load all habits from the database.
-    
-    Args:
-        connection: Active SQLite connection
-        
-    Returns:
-        List of Habit objects
     """
     cursor = connection.execute("""
         SELECT name, description, periodicity, created_date,
@@ -157,14 +133,7 @@ def load_all_habits(connection: sqlite3.Connection) -> List[Habit]:
 
 def load_habit_by_name(connection: sqlite3.Connection, habit_name: str) -> Optional[Habit]:
     """
-    Load a specific habit by name.
-    
-    Args:
-        connection: Active SQLite connection
-        habit_name: Name of the habit to load
-        
-    Returns:
-        Habit object if found, None otherwise
+    Load a specific habit from the database by name.
     """
     cursor = connection.execute("""
         SELECT name, description, periodicity, created_date,
@@ -192,13 +161,6 @@ def load_habit_by_name(connection: sqlite3.Connection, habit_name: str) -> Optio
 def habit_exists(connection: sqlite3.Connection, habit_name: str) -> bool:
     """
     Check if a habit with the given name exists.
-    
-    Args:
-        connection: Active SQLite connection
-        habit_name: Name to check
-        
-    Returns:
-        True if habit exists, False otherwise
     """
     cursor = connection.execute(
         "SELECT 1 FROM habits WHERE name = ?",
@@ -211,13 +173,6 @@ def save_completion(connection: sqlite3.Connection, habit_name: str,
                    completion_date: datetime) -> None:
     """
     Log a habit completion to the database.
-    
-    Creates a historical record for analytics purposes.
-    
-    Args:
-        connection: Active SQLite connection
-        habit_name: Name of the habit that was completed
-        completion_date: When it was completed
     """
     try:
         connection.execute("""
@@ -229,21 +184,13 @@ def save_completion(connection: sqlite3.Connection, habit_name: str,
         ))
         connection.commit()
     except sqlite3.IntegrityError:
-        # Completion already exists for this date - ignore
+        # Completion already exists for this habit and date - ignore
         pass
 
 
-def get_completions_for_habit(connection: sqlite3.Connection, 
-                              habit_name: str) -> List[datetime]:
+def get_completions_for_habit(connection: sqlite3.Connection, habit_name: str) -> List[datetime]:
     """
-    Get all completion dates for a specific habit.
-    
-    Args:
-        connection: Active SQLite connection
-        habit_name: Name of the habit
-        
-    Returns:
-        List of completion datetimes, sorted chronologically
+    Get all completion dates sorted chronologically for a specific habit.
     """
     cursor = connection.execute("""
         SELECT completion_date FROM completions
@@ -257,13 +204,6 @@ def get_completions_for_habit(connection: sqlite3.Connection,
 def delete_habit(connection: sqlite3.Connection, habit_name: str) -> bool:
     """
     Delete a habit and all its completions from the database.
-    
-    Args:
-        connection: Active SQLite connection
-        habit_name: Name of habit to delete
-        
-    Returns:
-        True if habit was found and deleted, False otherwise
     """
     cursor = connection.execute(
         "DELETE FROM habits WHERE name = ?",
@@ -278,12 +218,6 @@ def delete_habit(connection: sqlite3.Connection, habit_name: str) -> bool:
 def get_habit_count(connection: sqlite3.Connection) -> int:
     """
     Get the total number of habits in the database.
-    
-    Args:
-        connection: Active SQLite connection
-        
-    Returns:
-        Number of habits
     """
     cursor = connection.execute("SELECT COUNT(*) FROM habits")
     return cursor.fetchone()[0]
