@@ -43,7 +43,9 @@ from analytics.analytics import (
 
 @pytest.fixture
 def test_db():
-    """Create a test database connection."""
+    """
+    Create a test database connection.
+    """
     # Use in-memory database for tests
     connection = sqlite3.connect(":memory:")
     connection.execute("PRAGMA foreign_keys = ON")
@@ -54,7 +56,9 @@ def test_db():
 
 @pytest.fixture
 def sample_daily_habit():
-    """Create a sample daily habit."""
+    """
+    Create a sample daily habit.
+    """
     return Habit(
         name="Test Daily Habit",
         description="A test habit for daily tasks",
@@ -65,7 +69,9 @@ def sample_daily_habit():
 
 @pytest.fixture
 def sample_weekly_habit():
-    """Create a sample weekly habit."""
+    """
+    Create a sample weekly habit.
+    """
     return Habit(
         name="Test Weekly Habit",
         description="A test habit for weekly tasks",
@@ -76,7 +82,9 @@ def sample_weekly_habit():
 
 @pytest.fixture
 def sample_habits_list():
-    """Create a list of sample habits with various states."""
+    """
+    Create a list of sample habits with various states.
+    """
     base_date = datetime.now() - timedelta(days=7)
     
     habits = [
@@ -122,7 +130,9 @@ def sample_habits_list():
 # ============================================================================
 
 class TestHabitModel:
-    """Tests for the Habit class."""
+    """
+    Tests for the Habit class.
+    """
     
     def test_create_valid_daily_habit(self):
         """Test creating a valid daily habit."""
@@ -140,7 +150,9 @@ class TestHabitModel:
         assert habit.longest_streak == 0
     
     def test_create_valid_weekly_habit(self):
-        """Test creating a valid weekly habit."""
+        """
+        Test creating a valid weekly habit.
+        """
         habit = Habit(
             name="Weekly Habit",
             description="Weekly task",
@@ -151,7 +163,9 @@ class TestHabitModel:
         assert habit.periodicity == "weekly"
     
     def test_invalid_empty_name(self):
-        """Test that empty name raises ValueError."""
+        """
+        Test that empty name raises ValueError.
+        """
         with pytest.raises(ValueError):
             Habit(
                 name="",
@@ -161,7 +175,9 @@ class TestHabitModel:
             )
     
     def test_invalid_empty_description(self):
-        """Test that empty description raises ValueError."""
+        """
+        Test that empty description raises ValueError.
+        """
         with pytest.raises(ValueError):
             Habit(
                 name="Test",
@@ -171,7 +187,9 @@ class TestHabitModel:
             )
     
     def test_invalid_periodicity(self):
-        """Test that invalid periodicity raises ValueError."""
+        """
+        Test that invalid periodicity raises ValueError.
+        """
         with pytest.raises(ValueError):
             Habit(
                 name="Test",
@@ -181,7 +199,9 @@ class TestHabitModel:
             )
     
     def test_check_off_increments_streak(self, sample_daily_habit):
-        """Test that check_off increments the streak."""
+        """
+        Test that check_off increments the streak.
+        """
         initial_streak = sample_daily_habit.current_streak
         
         result = sample_daily_habit.check_off()
@@ -190,13 +210,17 @@ class TestHabitModel:
         assert sample_daily_habit.current_streak == initial_streak + 1
     
     def test_check_off_updates_longest_streak(self, sample_daily_habit):
-        """Test that check_off updates longest streak when appropriate."""
+        """
+        Test that check_off updates longest streak when appropriate.
+        """
         sample_daily_habit.check_off()
         
         assert sample_daily_habit.longest_streak >= sample_daily_habit.current_streak
     
     def test_check_off_same_day_returns_false(self, sample_daily_habit):
-        """Test that checking off twice in same period returns False."""
+        """
+        Test that checking off twice in same period returns False.
+        """
         sample_daily_habit.check_off()
         
         result = sample_daily_habit.check_off()
@@ -204,7 +228,9 @@ class TestHabitModel:
         assert result is False
     
     def test_check_off_sets_due_date(self, sample_daily_habit):
-        """Test that check_off sets the due date."""
+        """
+        Test that check_off sets the due date.
+        """
         assert sample_daily_habit.due_date is None
         
         sample_daily_habit.check_off()
@@ -212,11 +238,15 @@ class TestHabitModel:
         assert sample_daily_habit.due_date is not None
     
     def test_is_overdue_returns_false_when_no_due_date(self, sample_daily_habit):
-        """Test is_overdue returns False when no due date is set."""
+        """
+        Test is_overdue returns False when no due date is set.
+        """
         assert sample_daily_habit.is_overdue() is False
     
     def test_to_dict_conversion(self, sample_daily_habit):
-        """Test conversion to dictionary."""
+        """
+        Test conversion to dictionary.
+        """
         habit_dict = sample_daily_habit.to_dict()
         
         assert habit_dict['name'] == sample_daily_habit.name
@@ -225,7 +255,9 @@ class TestHabitModel:
         assert 'created_date' in habit_dict
     
     def test_from_dict_conversion(self, sample_daily_habit):
-        """Test creation from dictionary."""
+        """
+        Test creation from a dictionary.
+        """
         habit_dict = sample_daily_habit.to_dict()
         
         reconstructed = Habit.from_dict(habit_dict)
@@ -240,10 +272,14 @@ class TestHabitModel:
 # ============================================================================
 
 class TestDatabase:
-    """Tests for database operations."""
+    """
+    Tests for database operations.
+    """
     
     def test_save_and_load_habit(self, test_db, sample_daily_habit):
-        """Test saving and loading a habit."""
+        """
+        Test saving and loading a habit.
+        """
         save_habit(test_db, sample_daily_habit)
         
         habits = load_all_habits(test_db)
@@ -252,7 +288,9 @@ class TestDatabase:
         assert habits[0].name == sample_daily_habit.name
     
     def test_load_habit_by_name(self, test_db, sample_daily_habit):
-        """Test loading a specific habit by name."""
+        """
+        Test loading a specific habit by name.
+        """
         save_habit(test_db, sample_daily_habit)
         
         loaded = load_habit_by_name(test_db, sample_daily_habit.name)
@@ -261,13 +299,17 @@ class TestDatabase:
         assert loaded.name == sample_daily_habit.name
     
     def test_load_nonexistent_habit_returns_none(self, test_db):
-        """Test loading a habit that doesn't exist."""
+        """
+        Test loading a habit that doesn't exist.
+        """
         loaded = load_habit_by_name(test_db, "Nonexistent Habit")
         
         assert loaded is None
     
     def test_habit_exists(self, test_db, sample_daily_habit):
-        """Test checking if habit exists."""
+        """
+        Test checking if a habit exists.
+        """
         assert habit_exists(test_db, sample_daily_habit.name) is False
         
         save_habit(test_db, sample_daily_habit)
@@ -275,7 +317,9 @@ class TestDatabase:
         assert habit_exists(test_db, sample_daily_habit.name) is True
     
     def test_delete_habit(self, test_db, sample_daily_habit):
-        """Test deleting a habit."""
+        """
+        Test deleting a habit.
+        """
         save_habit(test_db, sample_daily_habit)
         assert habit_exists(test_db, sample_daily_habit.name) is True
         
@@ -285,13 +329,17 @@ class TestDatabase:
         assert habit_exists(test_db, sample_daily_habit.name) is False
     
     def test_delete_nonexistent_habit_returns_false(self, test_db):
-        """Test deleting a habit that doesn't exist."""
+        """
+        Test deleting a habit that doesn't exist.
+        """
         result = delete_habit(test_db, "Nonexistent")
         
         assert result is False
     
     def test_save_completion(self, test_db, sample_daily_habit):
-        """Test saving a completion record."""
+        """
+        Test saving a completion record.
+        """
         save_habit(test_db, sample_daily_habit)
         completion_time = datetime.now()
         
@@ -301,7 +349,9 @@ class TestDatabase:
         assert len(completions) == 1
     
     def test_update_existing_habit(self, test_db, sample_daily_habit):
-        """Test updating an existing habit."""
+        """
+        Test updating an existing habit.
+        """
         save_habit(test_db, sample_daily_habit)
         
         sample_daily_habit.check_off()
@@ -316,44 +366,58 @@ class TestDatabase:
 # ============================================================================
 
 class TestAnalytics:
-    """Tests for analytics module (functional programming)."""
+    """
+    Tests for analytics module (functional programming).
+    """
     
     def test_get_all_habits(self, sample_habits_list):
-        """Test getting all habits."""
+        """
+        Test getting all habits.
+        """
         result = get_all_habits(sample_habits_list)
         
         assert len(result) == len(sample_habits_list)
     
     def test_get_habits_by_periodicity_daily(self, sample_habits_list):
-        """Test filtering daily habits."""
+        """
+        Test filtering daily habits.
+        """
         result = get_habits_by_periodicity(sample_habits_list, "daily")
         
         assert len(result) == 2
         assert all(h.periodicity == "daily" for h in result)
     
     def test_get_habits_by_periodicity_weekly(self, sample_habits_list):
-        """Test filtering weekly habits."""
+        """
+        Test filtering weekly habits.
+        """
         result = get_habits_by_periodicity(sample_habits_list, "weekly")
         
         assert len(result) == 2
         assert all(h.periodicity == "weekly" for h in result)
     
     def test_get_longest_streak_all_habits(self, sample_habits_list):
-        """Test finding the longest streak across all habits."""
+        """
+        Test finding the longest streak across all habits.
+        """
         habit_name, streak = get_longest_streak_all_habits(sample_habits_list)
         
         assert habit_name == "Exercise"  # Has longest_streak of 10
         assert streak == 10
     
     def test_get_longest_streak_empty_list(self):
-        """Test longest streak with empty list."""
+        """
+        Test the longest streak with an empty list.
+        """
         habit_name, streak = get_longest_streak_all_habits([])
         
         assert habit_name is None
         assert streak == 0
     
     def test_get_longest_streak_for_habit(self, sample_habits_list):
-        """Test getting longest streak for a specific habit."""
+        """
+        Test getting longest streak for a specific habit.
+        """
         habit = sample_habits_list[0]  # Exercise
         
         result = get_longest_streak_for_habit(habit)
@@ -361,7 +425,9 @@ class TestAnalytics:
         assert result == habit.longest_streak
     
     def test_get_current_streak_for_habit(self, sample_habits_list):
-        """Test getting current streak for a specific habit."""
+        """
+        Test getting the current streak for a specific habit.
+        """
         habit = sample_habits_list[0]  # Exercise
         
         result = get_current_streak_for_habit(habit)
@@ -369,7 +435,9 @@ class TestAnalytics:
         assert result == habit.current_streak
     
     def test_get_habits_sorted_by_current_streak(self, sample_habits_list):
-        """Test sorting habits by current streak."""
+        """
+        Test sorting habits by current streak.
+        """
         result = get_habits_sorted_by_streak(sample_habits_list, by_current=True)
         
         # Should be sorted descending by current streak
@@ -377,7 +445,9 @@ class TestAnalytics:
             assert result[i].current_streak >= result[i + 1].current_streak
     
     def test_get_habits_sorted_by_longest_streak(self, sample_habits_list):
-        """Test sorting habits by longest streak."""
+        """
+        Test sorting habits by longest streak.
+        """
         result = get_habits_sorted_by_streak(sample_habits_list, by_current=False)
         
         # Should be sorted descending by longest streak
@@ -385,7 +455,9 @@ class TestAnalytics:
             assert result[i].longest_streak >= result[i + 1].longest_streak
     
     def test_get_max_streak_per_habit(self, sample_habits_list):
-        """Test getting max streak for each habit."""
+        """
+        Test getting max streak for each habit.
+        """
         result = get_max_streak_per_habit(sample_habits_list)
         
         assert len(result) == len(sample_habits_list)
@@ -398,10 +470,14 @@ class TestAnalytics:
 # ============================================================================
 
 class TestIntegration:
-    """Integration tests combining multiple components."""
+    """
+    Integration tests combining multiple components.
+    """
     
     def test_full_habit_lifecycle(self, test_db):
-        """Test complete habit lifecycle: create, check-off, save, load, delete."""
+        """
+        Test complete habit lifecycle: create, check-off, save, load, delete.
+        """
         # Create
         habit = Habit(
             name="Integration Test Habit",
@@ -428,8 +504,10 @@ class TestIntegration:
         assert not habit_exists(test_db, habit.name)
     
     def test_streak_reset_on_missed_period(self, test_db):
-        """Test that streak resets when a period is missed."""
-        # Create habit
+        """
+        Test that streak resets when a period is missed.
+        """
+        # Create a habit
         habit = Habit(
             name="Streak Reset Test",
             description="Testing streak reset",
